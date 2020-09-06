@@ -1,7 +1,8 @@
 package com.sha2;
 
 import com.google.common.base.Preconditions;
-import org.immutables.value.internal.$guava$.base.$Preconditions;
+
+
 
 import java.util.Objects;
 
@@ -14,33 +15,33 @@ public class BinaryArithmatic {
     /**
      * Bitwise AND operation.
      *
-     * @param a A boolean representing the first input.
-     * @param b A boolean representing the second input.
-     * @return {@code true} when both inputs are {@code true}; otherwise {@code false}.
+     * @param a An int representing the first input.
+     * @param b An int representing the second input.
+     * @return an int where, for every bit index i, the value is a(i) and'd with b(i).
      */
-    public static boolean and(boolean a, boolean b) {
-        return a && b;
+    public static int and(int a, int b) {
+        return a & b;
     }
 
     /**
      * Bitwise OR ("inclusive-OR") operation.
      *
-     * @param a A boolean representing the first input.
-     * @param b A boolean representing the second input.
-     * @return {@code false} when both inputs are {@code false}; otherwise {@code true}.
+     * @param a An int representing the first input.
+     * @param b An int representing the second input.
+     * @return an int where, for every bit index i, the value is a(i) or'd with b(i).
      */
-    public static boolean or(boolean a, boolean b) {
-        return a || b;
+    public static int or(int a, int b) {
+        return a | b;
     }
 
     /**
      * Bitwise XOR ("exclusive-OR") operation.
      *
-     * @param a A boolean representing the first input.
-     * @param b A boolean representing the second input.
-     * @return {@code true} if the operands are different; otherwise {@code false}.
+     * @param a An int representing the first input.
+     * @param b An int representing the second input.
+     * @return an int where, for every bit index i, the value is a(i) xor'd with b(i).
      */
-    public static boolean xor(boolean a, boolean b) {
+    public static int xor(int a, int b) {
 //        return (!a && b) || (a && !b);
         return a ^ b;
     }
@@ -87,7 +88,7 @@ public class BinaryArithmatic {
      * @param n An integer that is the number of bits to shift right. The value of n must be <= 0 and < 32.
      * @return the result of the right shift operation.
      */
-    public static int rsh32(int x, int n) {
+    public static int shr(int x, int n) {
         //: TODO check timing later on...
         Preconditions.checkArgument(n >= 0 && n < 32, "n must be greater than or equal to 0 and less than 32.");
         return x >>> n;
