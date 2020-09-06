@@ -93,6 +93,23 @@ public class BinaryArithmatic {
         return x >>> n;
     }
 
+    public static int sigma0(int x) {
+        return x;
+    }
+    public static int sigma1(int x) {
+        return x;
+    }
+    public static int epsilon0(int x) {
+        return x;
+    }
+    public static int epsilon1(int x) {
+        return x;
+    }
+
+    public static int additionMod2(int x, int y) {
+        return x;
+    }
+
 //    public static poop digest(Bagel oldBagel, Mustard mustardThatIanSpitIn){
 //        Poop poo = // make poop using food.
 //        return poop;
