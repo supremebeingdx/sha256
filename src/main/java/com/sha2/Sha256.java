@@ -1,15 +1,17 @@
 package com.sha2;
 
-import static com.sha2.BinaryArithmatic.additionMod2;
+import com.google.common.primitives.UnsignedInteger;
+
 import static com.sha2.BinaryArithmatic.and;
 import static com.sha2.BinaryArithmatic.bitComp;
 import static com.sha2.BinaryArithmatic.rotr;
 import static com.sha2.BinaryArithmatic.shr;
 import static com.sha2.BinaryArithmatic.xor;
+import static com.sha2.Constants32.K;
 
 public class Sha256 {
 
-  /**
+    /**
      * TODO add description
      *
      * @param x The first 32-bit word.
@@ -76,94 +78,139 @@ public class Sha256 {
 
     }
 
-  private static final int BLOCK_SIZE_BITS = 512;
+    private static final int BLOCK_SIZE_BITS = 512;
 
-  int T1;
-  int T2;
-  int a;
-  int b;
-  int c;
-  int d;
-  int e;
-  int f;
-  int g;
-  int h;
-  int H0;
-  int H1;
-  int H2;
-  int H3;
-  int H4;
-  int H5;
-  int H6;
-  int H7;
+    int T1;
+    int T2;
+    int a;
+    int b;
+    int c;
+    int d;
+    int e;
+    int f;
+    int g;
+    int h;
+    int H0;
+    int H1;
+    int H2;
+    int H3;
+    int H4;
+    int H5;
+    int H6;
+    int H7;
 
-  public byte[] hash(byte[] message) {
-    byte[] paddedMessage = pad(message);
-    MessageBlock[] blocks = this.parseMessage(paddedMessage);
+    public String hash(byte[] message) {
+        H0 = Constants.H[0];
+        H1 = Constants.H[1];
+        H2 = Constants.H[2];
+        H3 = Constants.H[3];
+        H4 = Constants.H[4];
+        H5 = Constants.H[5];
+        H6 = Constants.H[6];
+        H7 = Constants.H[7];
 
-    preprocess();
-    int N = blocks.length; // N <
-    for (int i = 1; i < N; i++) {
-      MessageSchedule W = new MessageSchedule();
-      MessageBlock block = blocks[i];
+        byte[] paddedMessage = Hashing.padding(message);
+        MessageBlock[] blocks = this.parseMessage(paddedMessage);
 
-      // 1.
-      int computedWord;
-      for (int t = 0; t < 64; t++) {
-        if (t < 16) {
-          computedWord = block.getWord(t);
-        } else {
-          int foo = additionMod2(
-              epsilon1(W.getWord(t - 2)),
-              W.getWord(t - 7)
-          );
-          int bar = additionMod2(
-              epsilon0(t - 15),
-              W.getWord(t - 16)
-          );
-          computedWord = additionMod2(foo, bar);
+        int N = blocks.length; // N <
+        for (int i = 0; i < N; i++) {
+            MessageSchedule W = new MessageSchedule();
+            MessageBlock block = blocks[0];
+
+            // 1.
+            int computedWord;
+            for (int t = 0; t < 64; t++) {
+                if (t < 16) {
+                    computedWord = block.getWord(t);
+                } else {
+                    int foo = additionMod2(
+                            epsilon1(W.getWord(t - 2)),
+                            W.getWord(t - 7)
+                    );
+                    int bar = additionMod2(
+                            epsilon0(t - 15),
+                            W.getWord(t - 16)
+                    );
+                    computedWord = additionMod2(foo, bar);
+                }
+                W.setWord(t, computedWord);
+            }
+
+            // 2. Init variables
+
+            a = H0;
+            b = H1;
+            c = H2;
+            d = H3;
+            e = H4;
+            f = H5;
+            g = H6;
+            h = H7;
+
+            // 3. Set t and a-h
+
+            for (int t = 0; t < 64; t++) {
+                int foo = additionMod2(h, sigma1(e));
+                int bar = additionMod2(ch(e, f, g), K[t]);
+                int baz = additionMod2(bar, W.getWord(t));
+                T1 = additionMod2(foo, baz);
+                T2 = additionMod2(sigma0(a), maj(a, b, c));
+                h = g;
+                g = f;
+                f = e;
+                e = additionMod2(d, T1);
+                d = c;
+                c = b;
+                b = a;
+                a = additionMod2(T1, T2);
+            }
+
+            // 4. compute the ith hash
+            H0 = additionMod2(a, H0);
+            H1 = additionMod2(b, H1);
+            H2 = additionMod2(c, H2);
+            H3 = additionMod2(d, H3);
+            H4 = additionMod2(e, H4);
+            H5 = additionMod2(f, H5);
+            H6 = additionMod2(g, H6);
+            H7 = additionMod2(h, H7);
+
+
         }
-        W.setWord(t, computedWord);
-      }
 
-      // 2. Init variables
+        Digest digest = new Digest();
+        digest.setH0(H0);
+        digest.setH1(H1);
+        digest.setH2(H2);
+        digest.setH3(H3);
+        digest.setH4(H4);
+        digest.setH5(H5);
+        digest.setH6(H6);
+        digest.setH7(H7);
 
-      // 3. Set t and a-h
-
-      // 4. compute the ith hash
-
-
-
+        return digest.toHex();
     }
 
-    return null;
-  }
-
-  private void preprocess() {
-    H0 = Constants.H[0];
-  }
-
-  private byte[] pad(byte[] message) {
-    //TODO Fill in when we get home
-    return null;
-  }
-
-  private MessageBlock[] parseMessage(byte[] paddedMessage) {
-    int totalMessageBits = paddedMessage.length * 8;
-    int N = totalMessageBits / BLOCK_SIZE_BITS;
-    int m = N / 8;
-
-    MessageBlock[] blocks = new MessageBlock[N];
-
-    for (int i = 0; i < m; i++) { //new messageBlock
-      int[] sixteenWords = new int[16];
-      for (int x = 0; x < 16; x++) {
-        sixteenWords[x] = paddedMessage[x + (16 * i)];
-      }
-      MessageBlock messageBlock = new MessageBlock(sixteenWords);
-      blocks[i] = messageBlock;
+    private int additionMod2(int foo, int bar) {
+        return UnsignedInteger.fromIntBits(foo).plus(UnsignedInteger.fromIntBits(bar)).intValue();
     }
 
-    return blocks;
-  }
+    private MessageBlock[] parseMessage(byte[] paddedMessage) {
+        int totalMessageBits = paddedMessage.length * 8;
+        int N = totalMessageBits / BLOCK_SIZE_BITS;
+        int m = N / 8;
+
+        MessageBlock[] blocks = new MessageBlock[N];
+
+        for (int i = 0; i < N; i++) { //new messageBlock
+            int[] sixteenWords = new int[16];
+            for (int x = 0; x < 16; x++) {
+                sixteenWords[x] = paddedMessage[x + (16 * i)];
+            }
+            MessageBlock messageBlock = new MessageBlock(sixteenWords);
+            blocks[i] = messageBlock;
+        }
+
+        return blocks;
+    }
 }

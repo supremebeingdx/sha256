@@ -9,9 +9,6 @@ public class MessageBlock {
 
   public MessageBlock(int[] words) {
     this.words = words;
-    for (int i = 0; i < 16; i++) {
-      words[i] = 0;
-    }
   }
 
   public int getWord(int index) {

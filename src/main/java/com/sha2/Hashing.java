@@ -17,28 +17,26 @@ public class Hashing {
     public static byte[] padding(byte[] message) {
         long l = message.length * 8;
         int k = K(l);
-        long newLength = l + 1 + k + 64;
-        assert newLength <= Integer.MAX_VALUE;
-        byte[] newArray = Arrays.copyOf(message, (int) newLength);
+        long newLengthBits = l + 1 + k; // Length in bits
+        long newLengthBytes = (newLengthBits / 8) + 8;
+        assert newLengthBytes <= Integer.MAX_VALUE;
+        byte[] newArray = Arrays.copyOf(message, (int) newLengthBytes);
 
-        byte[] paddingArray = new byte[64];
-        paddingArray[0] = (byte) 0x80;
-        for(int i = 1; i < 55; i++) {
-            paddingArray[i] = 0x00;
+        byte[] paddingArray = fromUnsignedInt(message.length);
+        paddingArray[0] = (byte) (paddingArray[0] | 0x80); // First bit is 1
+
+        // Append the last 64 bits.
+        for(int i = 0; i < 8; i++){
+            newArray[(int)newLengthBytes - 8 + i] = paddingArray[i];
         }
 
-        byte[] lengthBytes = fromUnsignedInt(message.length);
-
-        for(int i = 56; i < 64; i++){
-            paddingArray[i] = lengthBytes[i-56];
-        }
-        return paddingArray;
+        return newArray;
     }
 
-    public static byte[] fromUnsignedInt(int value)
+    public static byte[] fromUnsignedInt(long value)
     {
         byte[] bytes = new byte[8];
-        ByteBuffer.wrap(bytes).putInt(value);
+        ByteBuffer.wrap(bytes).putLong(value);
 
         return Arrays.copyOfRange(bytes, 0, 8);
     }

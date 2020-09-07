@@ -1,5 +1,6 @@
 package com.sha2;
 
+import com.google.common.primitives.UnsignedInteger;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -176,6 +177,15 @@ public class BinaryArithmaticTest {
             assertThat(BinaryArithmatic.rotl(x, n)).isEqualTo(BinaryArithmatic.rotr(x, 32-n));
             assertThat(BinaryArithmatic.rotr(x, n)).isEqualTo(BinaryArithmatic.rotl(x, 32-n));
         }
+    }
+
+    @Test
+    public void testAdditionModulo2() {
+        UnsignedInteger x = UnsignedInteger.ONE;
+        UnsignedInteger y = UnsignedInteger.MAX_VALUE;
+
+        UnsignedInteger actual = x.plus(y);
+        assertThat(actual).isEqualTo(UnsignedInteger.ZERO);
     }
 
 }
