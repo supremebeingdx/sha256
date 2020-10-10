@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 
 public class MessageSchedule {
 
-  // Should have 16 ints
   private final int[] words;
 
   public MessageSchedule() {

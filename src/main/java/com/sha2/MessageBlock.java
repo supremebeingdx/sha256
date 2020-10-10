@@ -8,6 +8,7 @@ public class MessageBlock {
   private final int[] words;
 
   public MessageBlock(int[] words) {
+    Preconditions.checkArgument(words.length >= 0 && words.length <= 16, "Words.length must be >= 0 and < 16.");
     this.words = words;
   }
 
